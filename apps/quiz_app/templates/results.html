@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}نتائج الاختبار{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Results Header -->
+            <div class="text-center mb-5 animate__animated animate__fadeInDown">
+                {% if result.passed %}
+                <div class="result-icon text-success mb-4">
+                    <i class="bi bi-check-circle-fill display-1"></i>
+                </div>
+                <h1 class="display-4 fw-bold text-success">مبروك! لقد نجحت</h1>
+                <p class="lead text-muted">أداء ممتاز في الاختبار</p>
+                {% else %}
+                <div class="result-icon text-warning mb-4">
+                    <i class="bi bi-exclamation-circle-fill display-1"></i>
+                </div>
+                <h1 class="display-4 fw-bold text-warning">حاول مرة أخرى</h1>
+                <p class="lead text-muted">لا تستسلم، يمكنك تحسين نتيجتك</p>
+                {% endif %}
+            </div>
+
+            <!-- Score Card -->
+            <div class="card border-0 shadow-lg mb-4 animate__animated animate__fadeInUp">
+                <div class="card-body p-5">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="score-circle mx-auto mb-3">
+                                <svg width="120" height="120">
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="10"/>
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#0d6efd" stroke-width="10" 
+                                            stroke-dasharray="{{ result.percentage }} 314" 
+                                            stroke-dashoffset="0" 
+                                            transform="rotate(-90 60 60)"/>
+                                    <text x="60" y="70" text-anchor="middle" class="score-text">{{ result.percentage }}%</text>
+                                </svg>
+                            </div>
+                            <h5>النتيجة الإجمالية</h5>
+                        </div>
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="stat-box">
+                                <i class="bi bi-check-circle-fill text-success display-4 mb-2"></i>
+                                <h3 class="fw-bold">{{ result.correct_answers }}</h3>
+                                <p class="text-muted mb-0">إجابات صحيحة</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="stat-box">
+                                <i class="bi bi-x-circle-fill text-danger display-4 mb-2"></i>
+                                <h3 class="fw-bold">{{ result.wrong_answers }}</h3>
+                                <p class="text-muted mb-0">إجابات خاطئة</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-box">
+                                <i class="bi bi-clock-fill text-info display-4 mb-2"></i>
+                                <h3 class="fw-bold">{{ result.time_taken }}</h3>
+                                <p class="text-muted mb-0">الوقت المستغرق</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100 animate__animated animate__fadeInLeft">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> توزيع الإجابات</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="answersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100 animate__animated animate__fadeInRight">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-bar-chart-fill"></i> الأداء حسب الفئة</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Review -->
+            <div class="card border-0 shadow-sm mb-4 animate__animated animate__fadeInUp">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-list-check"></i> مراجعة الأسئلة</h5>
+                </div>
+                <div class="card-body">
+                    {% for question in result.questions %}
+                    <div class="question-review mb-4 p-3 border rounded">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">سؤال {{ forloop.counter }}: {{ question.text }}</h6>
+                            {% if question.is_correct %}
+                            <span class="badge bg-success">صحيح</span>
+                            {% else %}
+                            <span class="badge bg-danger">خطأ</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-muted mb-2">إجابتك: <strong>{{ question.user_answer }}</strong></p>
+                        {% if not question.is_correct %}
+                        <p class="text-success mb-0">الإجابة الصحيحة: <strong>{{ question.correct_answer }}</strong></p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center">
+                <a href="{% url 'quiz:quiz_list' %}" class="btn btn-primary btn-lg px-5 me-2">
+                    <i class="bi bi-arrow-right"></i> العودة للاختبارات
+                </a>
+                <a href="{% url 'quiz:take_quiz' result.quiz_id %}" class="btn btn-outline-primary btn-lg px-5">
+                    <i class="bi bi-arrow-clockwise"></i> إعادة المحاولة
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .score-circle {
+        width: 120px;
+        height: 120px;
+        position: relative;
+    }
+    .score-text {
+        font-size: 24px;
+        font-weight: bold;
+        fill: #0d6efd;
+    }
+    .stat-box {
+        padding: 1rem;
+    }
+    .question-review {
+        transition: all 0.3s ease;
+    }
+    .question-review:hover {
+        background-color: #f8f9fa;
+        transform: translateX(-5px);
+    }
+</style>
+
+{% block extra_js %}
+<script>
+    // Answers Distribution Chart
+    const answersCtx = document.getElementById('answersChart').getContext('2d');
+    new Chart(answersCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['صحيح', 'خطأ'],
+            datasets: [{
+                data: [{{ result.correct_answers }}, {{ result.wrong_answers }}],
+                backgroundColor: ['#198754', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Category Performance Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ result.categories|safe }},
+            datasets: [{
+                label: 'الأداء %',
+                data: {{ result.category_scores|safe }},
+                backgroundColor: '#0d6efd',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}
+

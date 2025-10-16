@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Available Quizzes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h1 class="display-4 fw-bold animate__animated animate__fadeInDown">Available Quizzes</h1>
+            <p class="lead text-muted">Choose the quiz you want to start</p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="col-12 mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <select class="form-select" id="subjectFilter">
+                        <option value="">All Subjects</option>
+                        {% for subject in main_subjects %}
+                        <option value="{{ subject }}">{{ subject }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="difficultyFilter">
+                        <option value="">All Levels</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="searchQuiz" placeholder="Search for a quiz...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Subject Sections -->
+        {% for subject, levels in subjects_data.items %}
+        <div class="col-12 mb-5 subject-section" data-subject="{{ subject }}">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-book"></i> {{ subject }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Easy Level -->
+                        {% if levels.easy %}
+                        <div class="col-md-4">
+                            <div class="quiz-card h-100 border rounded p-3" data-difficulty="easy">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0 text-success">{{ subject }} - EASY</h6>
+                                    <span class="badge bg-warning text-dark">⭐ Easy</span>
+                                </div>
+                                <p class="text-muted small mb-2">{{ levels.easy.description }}</p>
+                                <div class="quiz-meta mb-3">
+                                    <small class="text-success">
+                                        <i class="bi bi-clock"></i> {{ levels.easy.duration }} minutes
+                                    </small>
+                                    <br>
+                                    <small class="text-info">
+                                        <i class="bi bi-question-circle"></i> 30 questions (10 shown)
+                                    </small>
+                                    <br>
+                                    <small class="text-warning">
+                                        <i class="bi bi-trophy"></i> Pass: {{ levels.easy.pass_percentage }}%
+                                    </small>
+                                </div>
+                                <a href="{% url 'quiz:take_quiz' levels.easy.id %}" class="btn btn-success w-100">
+                                    <i class="bi bi-play-fill"></i> Start Quiz
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Medium Level -->
+                        {% if levels.medium %}
+                        <div class="col-md-4">
+                            <div class="quiz-card h-100 border rounded p-3" data-difficulty="medium">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0 text-warning">{{ subject }} - MEDIUM</h6>
+                                    <span class="badge bg-warning text-dark">⭐⭐ Medium</span>
+                                </div>
+                                <p class="text-muted small mb-2">{{ levels.medium.description }}</p>
+                                <div class="quiz-meta mb-3">
+                                    <small class="text-success">
+                                        <i class="bi bi-clock"></i> {{ levels.medium.duration }} minutes
+                                    </small>
+                                    <br>
+                                    <small class="text-info">
+                                        <i class="bi bi-question-circle"></i> 30 questions (10 shown)
+                                    </small>
+                                    <br>
+                                    <small class="text-warning">
+                                        <i class="bi bi-trophy"></i> Pass: {{ levels.medium.pass_percentage }}%
+                                    </small>
+                                </div>
+                                <a href="{% url 'quiz:take_quiz' levels.medium.id %}" class="btn btn-warning w-100">
+                                    <i class="bi bi-play-fill"></i> Start Quiz
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Hard Level -->
+                        {% if levels.hard %}
+                        <div class="col-md-4">
+                            <div class="quiz-card h-100 border rounded p-3" data-difficulty="hard">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0 text-danger">{{ subject }} - HARD</h6>
+                                    <span class="badge bg-warning text-dark">⭐⭐⭐ Hard</span>
+                                </div>
+                                <p class="text-muted small mb-2">{{ levels.hard.description }}</p>
+                                <div class="quiz-meta mb-3">
+                                    <small class="text-success">
+                                        <i class="bi bi-clock"></i> {{ levels.hard.duration }} minutes
+                                    </small>
+                                    <br>
+                                    <small class="text-info">
+                                        <i class="bi bi-question-circle"></i> 30 questions (10 shown)
+                                    </small>
+                                    <br>
+                                    <small class="text-warning">
+                                        <i class="bi bi-trophy"></i> Pass: {{ levels.hard.pass_percentage }}%
+                                    </small>
+                                </div>
+                                <a href="{% url 'quiz:take_quiz' levels.hard.id %}" class="btn btn-danger w-100">
+                                    <i class="bi bi-play-fill"></i> Start Quiz
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <h3 class="mt-3">No quizzes available</h3>
+            <p class="text-muted">Please run database seeding first</p>
+            <a href="{% url 'quiz:chatbot_home' %}" class="btn btn-primary">
+                <i class="bi bi-robot"></i> Use Quiz Chatbot
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .subject-section {
+        transition: opacity 0.3s ease;
+    }
+    
+    .subject-section.hidden {
+        display: none;
+    }
+    
+    .quiz-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+    }
+    
+    .quiz-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+    
+    .quiz-meta small {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subjectFilter = document.getElementById('subjectFilter');
+    const difficultyFilter = document.getElementById('difficultyFilter');
+    const searchInput = document.getElementById('searchQuiz');
+    
+    function filterQuizzes() {
+        const selectedSubject = subjectFilter.value.toLowerCase();
+        const selectedDifficulty = difficultyFilter.value.toLowerCase();
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        const subjectSections = document.querySelectorAll('.subject-section');
+        const quizCards = document.querySelectorAll('.quiz-card');
+        
+        subjectSections.forEach(section => {
+            const subjectName = section.dataset.subject.toLowerCase();
+            let showSection = true;
+            
+            // Filter by subject
+            if (selectedSubject && !subjectName.includes(selectedSubject)) {
+                showSection = false;
+            }
+            
+            // Filter by search term
+            if (searchTerm && !subjectName.includes(searchTerm)) {
+                showSection = false;
+            }
+            
+            if (showSection) {
+                section.classList.remove('hidden');
+                
+                // Filter quiz cards within this section
+                const cards = section.querySelectorAll('.quiz-card');
+                cards.forEach(card => {
+                    const difficulty = card.dataset.difficulty;
+                    let showCard = true;
+                    
+                    // Filter by difficulty
+                    if (selectedDifficulty && difficulty !== selectedDifficulty) {
+                        showCard = false;
+                    }
+                    
+                    if (showCard) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            } else {
+                section.classList.add('hidden');
+            }
+        });
+    }
+    
+    subjectFilter.addEventListener('change', filterQuizzes);
+    difficultyFilter.addEventListener('change', filterQuizzes);
+    searchInput.addEventListener('input', filterQuizzes);
+});
+</script>
+{% endblock %}

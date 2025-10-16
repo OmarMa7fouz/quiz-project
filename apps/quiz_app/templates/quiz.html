@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ quiz.title }} - الاختبار{% endblock %}
+
+{% block extra_css %}
+<!-- Prism.js for syntax highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Quiz Header -->
+            <div class="card border-0 shadow-lg mb-4 animate__animated animate__fadeInDown">
+                <div class="card-body bg-primary text-white p-4">
+                    <h2 class="mb-3">
+                        <i class="bi bi-journal-code"></i> {{ quiz.title }}
+                    </h2>
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex gap-3">
+                                <span><i class="bi bi-question-circle-fill"></i> سؤال <span id="currentQuestion">1</span> من <span id="totalQuestions">{{ quiz.questions.count }}</span></span>
+                                <span><i class="bi bi-clock-fill"></i> الوقت المتبقي: <span id="timer">{{ quiz.duration }}:00</span></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <span class="badge bg-light text-primary fs-6">النقاط: <span id="score">0</span></span>
+                        </div>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="progress mt-3" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="card border-0 shadow-lg mb-4 animate__animated animate__fadeIn" id="questionCard">
+                <div class="card-body p-5">
+                    <div class="question-content">
+                        <h4 class="mb-4" id="questionText">
+                            <!-- Question will be loaded here -->
+                        </h4>
+                        
+                        <!-- Code Block (if question has code) -->
+                        <div id="codeBlock" class="mb-4" style="display: none;">
+                            <pre><code class="language-python" id="codeContent">
+                                <!-- Code will be loaded here -->
+                            </code></pre>
+                        </div>
+
+                        <!-- Answer Options -->
+                        <div class="row g-3" id="answerOptions">
+                            <!-- Options will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-secondary btn-lg" id="prevBtn" disabled>
+                    <i class="bi bi-arrow-right"></i> السابق
+                </button>
+                <button class="btn btn-primary btn-lg" id="nextBtn">
+                    التالي <i class="bi bi-arrow-left"></i>
+                </button>
+                <button class="btn btn-success btn-lg" id="submitBtn" style="display: none;">
+                    <i class="bi bi-check-circle-fill"></i> إنهاء الاختبار
+                </button>
+            </div>
+
+            <!-- Question Navigator -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h6 class="mb-3">التنقل السريع بين الأسئلة:</h6>
+                    <div class="d-flex flex-wrap gap-2" id="questionNavigator">
+                        <!-- Question numbers will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Confirmation Modal -->
+<div class="modal fade" id="submitModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill"></i> تأكيد الإنهاء
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="lead">هل أنت متأكد من إنهاء الاختبار؟</p>
+                <p class="text-muted">لقد أجبت على <span id="answeredCount">0</span> من <span id="totalCount">0</span> سؤال</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-success" id="confirmSubmit">نعم، إنهاء الاختبار</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .answer-option {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+    .answer-option:hover {
+        border-color: #0d6efd;
+        background-color: #f8f9fa;
+        transform: translateX(-5px);
+    }
+    .answer-option.selected {
+        border-color: #0d6efd;
+        background-color: #e7f1ff;
+    }
+    .answer-option.correct {
+        border-color: #198754;
+        background-color: #d1e7dd;
+    }
+    .answer-option.incorrect {
+        border-color: #dc3545;
+        background-color: #f8d7da;
+    }
+    .question-nav-btn {
+        width: 40px;
+        height: 40px;
+        border: 2px solid #dee2e6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .question-nav-btn:hover {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+    .question-nav-btn.answered {
+        background-color: #198754;
+        color: white;
+        border-color: #198754;
+    }
+    .question-nav-btn.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+</style>
+
+{% block extra_js %}
+<!-- Prism.js for syntax highlighting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+<script src="{% static 'js/quiz.js' %}"></script>
+{% endblock %}
+{% endblock %}
+

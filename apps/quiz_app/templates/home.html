@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Smart Quiz System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center min-vh-75 py-5">
+        <div class="col-lg-6 animate__animated animate__fadeInRight">
+            <h1 class="display-4 fw-bold text-primary mb-4">
+                Welcome to Smart Quiz System
+            </h1>
+            <p class="lead mb-4">
+                Test your knowledge and develop your skills with the most advanced quiz system. 
+                Easy-to-use interface, detailed reports, and instant results.
+            </p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{% url 'quiz:chatbot_home' %}" class="btn btn-success btn-lg px-5">
+                    <i class="bi bi-robot me-2"></i>Quiz Chatbot
+                </a>
+                <a href="{% url 'quiz:quiz_list' %}" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-play-circle-fill"></i> Start Now
+                </a>
+                <a href="#features" class="btn btn-outline-primary btn-lg px-5">
+                    <i class="bi bi-info-circle"></i> Learn More
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6 animate__animated animate__fadeInLeft">
+            <img src="{% static 'images/hero-illustration.svg' %}" alt="Quiz Illustration" class="img-fluid" 
+                 onerror="this.src='https://via.placeholder.com/600x400/4e73df/ffffff?text=Quiz+System'">
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div id="features" class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="display-5 fw-bold">Features</h2>
+            <p class="lead text-muted">Why choose our system?</p>
+        </div>
+        
+        <div class="col-md-4 mb-4 animate__animated animate__fadeInUp">
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-lightning-charge-fill fs-1"></i>
+                    </div>
+                    <h4 class="card-title">Instant Results</h4>
+                    <p class="card-text text-muted">Get your quiz results immediately with detailed performance analysis</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-success bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-graph-up-arrow fs-1"></i>
+                    </div>
+                    <h4 class="card-title">Progress Tracking</h4>
+                    <p class="card-text text-muted">Monitor your progress over time with interactive charts</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-info bg-gradient text-white rounded-circle mx-auto mb-3">
+                        <i class="bi bi-phone-fill fs-1"></i>
+                    </div>
+                    <h4 class="card-title">Multi-Device Compatible</h4>
+                    <p class="card-text text-muted">Use the system from any device - computer, tablet, or mobile</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="row py-5 bg-light rounded-3 my-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="display-6 fw-bold">System Statistics</h2>
+        </div>
+        <div class="col-md-3 col-6 text-center mb-3">
+            <div class="stat-number text-primary fw-bold display-4">360+</div>
+            <p class="text-muted">Questions</p>
+        </div>
+        <div class="col-md-3 col-6 text-center mb-3">
+            <div class="stat-number text-success fw-bold display-4">12</div>
+            <p class="text-muted">Quizzes</p>
+        </div>
+        <div class="col-md-3 col-6 text-center mb-3">
+            <div class="stat-number text-info fw-bold display-4">4</div>
+            <p class="text-muted">Subjects</p>
+        </div>
+        <div class="col-md-3 col-6 text-center mb-3">
+            <div class="stat-number text-warning fw-bold display-4">100%</div>
+            <p class="text-muted">Free</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+</style>
+{% endblock %}
+

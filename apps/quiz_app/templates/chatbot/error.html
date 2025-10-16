@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Error - Quiz Chatbot{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="d-flex align-items-center">
+                        <div class="bot-avatar me-3">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">Quiz Chatbot</h5>
+                            <small class="text-white-50">Error</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages">
+                    <div class="message bot-message">
+                        <div class="message-avatar" style="background: #dc3545;">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble" style="background: #f8d7da; border: 2px solid #dc3545;">
+                                <h5 class="mb-2">❌ Oops! Something went wrong</h5>
+                                <p class="mb-0">{{ error }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message bot-message">
+                        <div class="message-avatar">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <p class="mb-2"><strong>💡 Possible solutions:</strong></p>
+                                <ul class="mb-0">
+                                    <li>Make sure the database is seeded</li>
+                                    <li>Run: <code>python quiz_database.py</code></li>
+                                    <li>Check if all questions are created</li>
+                                    <li>Try starting over</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'quiz:chatbot_home' %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Start Over
+                        </a>
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="bi bi-house-door me-2"></i>
+                            Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .chat-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+    }
+
+    .bot-avatar {
+        width: 50px;
+        height: 50px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .chat-messages {
+        padding: 2rem;
+        background: #f8f9fa;
+    }
+
+    .message {
+        display: flex;
+        margin-bottom: 1.5rem;
+    }
+
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .message-content {
+        margin-left: 1rem;
+    }
+
+    .message-bubble {
+        background: white;
+        padding: 1rem 1.25rem;
+        border-radius: 18px 18px 18px 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .chat-input {
+        padding: 1.5rem;
+        background: white;
+        border-top: 1px solid #dee2e6;
+    }
+
+    code {
+        background: #f8f9fa;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+        color: #d63384;
+    }
+</style>
+{% endblock %}
+
