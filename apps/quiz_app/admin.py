@@ -1,73 +1,53 @@
 from django.contrib import admin
-from .models import Category, Quiz, Question, Answer, QuizResult, UserAnswer
+from .models import Subject, Question
 
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'created_at']
-    prepopulated_fields = {'slug': ('name',)}
-    search_fields = ['name', 'description']
-
-
-class AnswerInline(admin.TabularInline):
-    model = Answer
-    extra = 4
-    fields = ['answer_text', 'is_correct', 'order']
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    """Admin interface for Subject model"""
+    list_display = ['code', 'name', 'total_questions', 'created_at']
+    search_fields = ['code', 'name', 'description']
+    ordering = ['code']
+    
+    def total_questions(self, obj):
+        return obj.total_questions()
+    total_questions.short_description = 'Total Questions'
 
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['question_text', 'quiz', 'question_type', 'points', 'order']
-    list_filter = ['quiz', 'question_type']
-    search_fields = ['question_text']
-    inlines = [AnswerInline]
-
-
-class QuestionInline(admin.StackedInline):
-    model = Question
-    extra = 1
-    fields = ['question_text', 'code_snippet', 'question_type', 'points', 'order']
-
-
-@admin.register(Quiz)
-class QuizAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category', 'difficulty', 'duration', 'is_active', 'created_at']
-    list_filter = ['category', 'difficulty', 'is_active']
-    search_fields = ['title', 'description']
-    prepopulated_fields = {'slug': ('title',)}
-    inlines = [QuestionInline]
+    """Admin interface for Question model"""
+    list_display = ['subject', 'question_preview', 'level', 'correct_answer', 'created_at']
+    list_filter = ['subject', 'level', 'correct_answer']
+    search_fields = ['question_text', 'subject__code', 'subject__name']
+    ordering = ['subject', 'level', '-created_at']
+    
+    fieldsets = (
+        ('Question Information', {
+            'fields': ('subject', 'question_text', 'level')
+        }),
+        ('Answer Options', {
+            'fields': ('option_a', 'option_b', 'option_c', 'option_d', 'correct_answer')
+        }),
+        ('Additional Information', {
+            'fields': ('explanation',),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def question_preview(self, obj):
+        """Show first 80 characters of question"""
+        return obj.question_text[:80] + '...' if len(obj.question_text) > 80 else obj.question_text
+    question_preview.short_description = 'Question'
     
     def save_model(self, request, obj, form, change):
-        if not obj.pk:
-            obj.created_by = request.user
+        """Validate correct answer before saving"""
+        if obj.correct_answer not in ['A', 'B', 'C', 'D']:
+            obj.correct_answer = obj.correct_answer.upper()
         super().save_model(request, obj, form, change)
 
 
-class UserAnswerInline(admin.TabularInline):
-    model = UserAnswer
-    extra = 0
-    fields = ['question', 'selected_answer', 'is_correct', 'points_earned']
-    readonly_fields = ['is_correct', 'points_earned']
-
-
-@admin.register(QuizResult)
-class QuizResultAdmin(admin.ModelAdmin):
-    list_display = ['user', 'quiz', 'score', 'percentage', 'passed', 'completed', 'started_at']
-    list_filter = ['passed', 'completed', 'quiz']
-    search_fields = ['user__username', 'quiz__title']
-    readonly_fields = ['score', 'percentage', 'passed']
-    inlines = [UserAnswerInline]
-
-
-@admin.register(Answer)
-class AnswerAdmin(admin.ModelAdmin):
-    list_display = ['question', 'answer_text', 'is_correct', 'order']
-    list_filter = ['is_correct', 'question__quiz']
-    search_fields = ['answer_text', 'question__question_text']
-
-
-@admin.register(UserAnswer)
-class UserAnswerAdmin(admin.ModelAdmin):
-    list_display = ['quiz_result', 'question', 'selected_answer', 'is_correct', 'points_earned']
-    list_filter = ['is_correct', 'quiz_result__quiz']
-    search_fields = ['quiz_result__user__username', 'question__question_text']
+# Customize admin site header
+admin.site.site_header = 'Quiz System Administration'
+admin.site.site_title = 'Quiz Admin'
+admin.site.index_title = 'Manage Subjects and Questions'

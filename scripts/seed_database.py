@@ -1,7 +1,7 @@
 """
 Seed script to populate the database with sample data
-Run this script with: python manage.py shell < scripts/seed_database.py
-Or: python scripts/seed_database.py (if configured properly)
+Run this script with:
+python scripts/seed_database.py
 """
 
 import os
@@ -13,306 +13,150 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'my_quiz_project.settings')
 django.setup()
 
-from django.contrib.auth.models import User
-from apps.quiz_app.models import Category, Quiz, Question, Answer
+from apps.quiz_app.models import Subject, Question
 
 
-def create_superuser():
-    """Create a superuser if it doesn't exist"""
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser(
-            username='admin',
-            email='admin@example.com',
-            password='admin123'
-        )
-        print('✓ Superuser created: username=admin, password=admin123')
-    else:
-        print('✓ Superuser already exists')
-
-
-def create_categories():
-    """Create sample categories"""
-    categories_data = [
-        {'name': 'البرمجة', 'slug': 'programming', 'description': 'أسئلة عن البرمجة وأساسياتها', 'icon': 'bi-code-slash'},
-        {'name': 'قواعد البيانات', 'slug': 'database', 'description': 'أسئلة عن قواعد البيانات وSQL', 'icon': 'bi-database'},
-        {'name': 'تطوير الويب', 'slug': 'web-development', 'description': 'أسئلة عن HTML, CSS, JavaScript', 'icon': 'bi-globe'},
-        {'name': 'الذكاء الاصطناعي', 'slug': 'ai', 'description': 'أسئلة عن الذكاء الاصطناعي وتعلم الآلة', 'icon': 'bi-robot'},
-    ]
-    
-    for cat_data in categories_data:
-        category, created = Category.objects.get_or_create(
-            slug=cat_data['slug'],
-            defaults=cat_data
-        )
-        if created:
-            print(f'✓ Category created: {category.name}')
-    
-    return Category.objects.all()
-
-
-def create_quizzes(categories):
-    """Create sample quizzes"""
-    admin_user = User.objects.get(username='admin')
-    programming_category = categories.get(slug='programming')
-    web_category = categories.get(slug='web-development')
-    
-    quizzes_data = [
+def create_subjects():
+    """Create the 4 main subjects"""
+    subjects_data = [
         {
-            'title': 'أساسيات Python',
-            'slug': 'python-basics',
-            'description': 'اختبار شامل لأساسيات لغة Python',
-            'category': programming_category,
-            'difficulty': 'easy',
-            'duration': 30,
-            'pass_percentage': 70,
+            'code': 'CSW351-AI',
+            'name': 'Artificial Intelligence',
+            'description': 'AI concepts, machine learning, neural networks, and intelligent systems'
         },
         {
-            'title': 'Django المتقدم',
-            'slug': 'django-advanced',
-            'description': 'اختبار متقدم في إطار عمل Django',
-            'category': programming_category,
-            'difficulty': 'hard',
-            'duration': 45,
-            'pass_percentage': 60,
+            'code': 'INT353-MULTIMEDIA',
+            'name': 'Multimedia',
+            'description': 'Multimedia systems, graphics, audio, video processing, and compression'
         },
         {
-            'title': 'HTML & CSS',
-            'slug': 'html-css',
-            'description': 'اختبار في HTML و CSS للمبتدئين',
-            'category': web_category,
-            'difficulty': 'easy',
-            'duration': 25,
-            'pass_percentage': 70,
+            'code': 'INT341-WEB-TECHNOLOGY',
+            'name': 'Web Technology',
+            'description': 'Web development, HTML, CSS, JavaScript, and modern web frameworks'
+        },
+        {
+            'code': 'CSW325-PARALLEL-PROCESSING',
+            'name': 'Parallel Processing',
+            'description': 'Parallel computing, multi-threading, distributed systems, and concurrent programming'
         },
     ]
+
+    print("=" * 80)
+    print("CREATING SUBJECTS")
+    print("=" * 80)
     
-    created_quizzes = []
-    for quiz_data in quizzes_data:
-        quiz, created = Quiz.objects.get_or_create(
-            slug=quiz_data['slug'],
-            defaults={**quiz_data, 'created_by': admin_user}
+    for data in subjects_data:
+        subject, created = Subject.objects.get_or_create(
+            code=data['code'],
+            defaults=data
         )
         if created:
-            print(f'✓ Quiz created: {quiz.title}')
-        created_quizzes.append(quiz)
+            print(f"[+] Created: {subject.code} - {subject.name}")
+        else:
+            print(f"[=] Exists: {subject.code} - {subject.name}")
     
-    return created_quizzes
+    print()
+    return Subject.objects.all()
 
 
-def create_questions(quizzes):
-    """Create sample questions for quizzes"""
+def create_placeholder_questions(subject, level, count=30):
+    """
+    Create placeholder questions for a subject and level
     
-    # Python basics quiz questions
-    python_quiz = quizzes[0]
+    Args:
+        subject: Subject object
+        level: Difficulty level (easy, medium, hard)
+        count: Number of questions to create (default: 30)
+    """
+    questions_created = 0
     
-    python_questions = [
-        {
-            'question_text': 'ما هي لغة البرمجة التي تستخدم Django؟',
-            'code_snippet': None,
-            'question_type': 'single',
-            'points': 1,
-            'order': 1,
-            'answers': [
-                {'text': 'JavaScript', 'is_correct': False},
-                {'text': 'Python', 'is_correct': True},
-                {'text': 'Java', 'is_correct': False},
-                {'text': 'PHP', 'is_correct': False},
-            ]
-        },
-        {
-            'question_text': 'ما هو ناتج الكود التالي؟',
-            'code_snippet': 'x = 5\ny = 3\nprint(x + y)',
-            'question_type': 'single',
-            'points': 2,
-            'order': 2,
-            'answers': [
-                {'text': '8', 'is_correct': True},
-                {'text': '53', 'is_correct': False},
-                {'text': 'Error', 'is_correct': False},
-                {'text': '15', 'is_correct': False},
-            ]
-        },
-        {
-            'question_text': 'أي من الآتي يستخدم لإنشاء قائمة (list) في Python؟',
-            'code_snippet': None,
-            'question_type': 'single',
-            'points': 1,
-            'order': 3,
-            'answers': [
-                {'text': '[]', 'is_correct': True},
-                {'text': '{}', 'is_correct': False},
-                {'text': '()', 'is_correct': False},
-                {'text': '<>', 'is_correct': False},
-            ]
-        },
-        {
-            'question_text': 'Python هي لغة برمجة مفسرة (interpreted)',
-            'code_snippet': None,
-            'question_type': 'true_false',
-            'points': 1,
-            'order': 4,
-            'answers': [
-                {'text': 'صح', 'is_correct': True},
-                {'text': 'خطأ', 'is_correct': False},
-            ]
-        },
-        {
-            'question_text': 'ما هي الدالة المستخدمة لطباعة النص في Python؟',
-            'code_snippet': None,
-            'question_type': 'single',
-            'points': 1,
-            'order': 5,
-            'answers': [
-                {'text': 'echo()', 'is_correct': False},
-                {'text': 'printf()', 'is_correct': False},
-                {'text': 'print()', 'is_correct': True},
-                {'text': 'console.log()', 'is_correct': False},
-            ]
-        },
-    ]
-    
-    for q_data in python_questions:
-        answers_data = q_data.pop('answers')
+    for i in range(1, count + 1):
+        question_text = f"[{subject.code}] [{level.upper()}] Question {i}: Replace this with your actual question"
+        
         question, created = Question.objects.get_or_create(
-            quiz=python_quiz,
-            question_text=q_data['question_text'],
-            defaults=q_data
+            subject=subject,
+            question_text=question_text,
+            level=level,
+            defaults={
+                'option_a': f'Option A - Replace with actual answer',
+                'option_b': f'Option B - Replace with actual answer',
+                'option_c': f'Option C - Replace with actual answer',
+                'option_d': f'Option D - Replace with actual answer',
+                'correct_answer': 'A',
+                'explanation': f'Add explanation for question {i} here'
+            }
         )
         
         if created:
-            for idx, ans_data in enumerate(answers_data):
-                Answer.objects.create(
-                    question=question,
-                    answer_text=ans_data['text'],
-                    is_correct=ans_data['is_correct'],
-                    order=idx
-                )
-            print(f'✓ Question created: {question.question_text[:50]}...')
+            questions_created += 1
     
-    # Django advanced quiz questions
-    django_quiz = quizzes[1]
+    return questions_created
+
+
+def create_all_questions(subjects):
+    """Create 30 placeholder questions for each level for each subject"""
+    print("=" * 80)
+    print("CREATING QUESTIONS (30 per level per subject)")
+    print("=" * 80)
     
-    django_questions = [
-        {
-            'question_text': 'ما هو ORM في Django؟',
-            'code_snippet': None,
-            'question_type': 'single',
-            'points': 2,
-            'order': 1,
-            'answers': [
-                {'text': 'Object-Relational Mapping', 'is_correct': True},
-                {'text': 'Object-Request Manager', 'is_correct': False},
-                {'text': 'Online Resource Manager', 'is_correct': False},
-                {'text': 'Operational Response Module', 'is_correct': False},
-            ]
-        },
-        {
-            'question_text': 'ما هو الأمر المستخدم لإنشاء migrations في Django؟',
-            'code_snippet': None,
-            'question_type': 'single',
-            'points': 1,
-            'order': 2,
-            'answers': [
-                {'text': 'python manage.py migrate', 'is_correct': False},
-                {'text': 'python manage.py makemigrations', 'is_correct': True},
-                {'text': 'python manage.py createmigrations', 'is_correct': False},
-                {'text': 'python manage.py migration', 'is_correct': False},
-            ]
-        },
-    ]
+    levels = ['easy', 'medium', 'hard']
+    total_questions = 0
     
-    for q_data in django_questions:
-        answers_data = q_data.pop('answers')
-        question, created = Question.objects.get_or_create(
-            quiz=django_quiz,
-            question_text=q_data['question_text'],
-            defaults=q_data
-        )
+    for subject in subjects:
+        print(f"\n{subject.code}:")
+        subject_total = 0
         
-        if created:
-            for idx, ans_data in enumerate(answers_data):
-                Answer.objects.create(
-                    question=question,
-                    answer_text=ans_data['text'],
-                    is_correct=ans_data['is_correct'],
-                    order=idx
-                )
-            print(f'✓ Question created: {question.question_text[:50]}...')
-    
-    # HTML & CSS quiz questions
-    html_quiz = quizzes[2]
-    
-    html_questions = [
-        {
-            'question_text': 'ما هو الوسم المستخدم لإنشاء رابط في HTML؟',
-            'code_snippet': None,
-            'question_type': 'single',
-            'points': 1,
-            'order': 1,
-            'answers': [
-                {'text': '<link>', 'is_correct': False},
-                {'text': '<a>', 'is_correct': True},
-                {'text': '<href>', 'is_correct': False},
-                {'text': '<url>', 'is_correct': False},
-            ]
-        },
-        {
-            'question_text': 'CSS تعني Cascading Style Sheets',
-            'code_snippet': None,
-            'question_type': 'true_false',
-            'points': 1,
-            'order': 2,
-            'answers': [
-                {'text': 'صح', 'is_correct': True},
-                {'text': 'خطأ', 'is_correct': False},
-            ]
-        },
-    ]
-    
-    for q_data in html_questions:
-        answers_data = q_data.pop('answers')
-        question, created = Question.objects.get_or_create(
-            quiz=html_quiz,
-            question_text=q_data['question_text'],
-            defaults=q_data
-        )
+        for level in levels:
+            count = create_placeholder_questions(subject, level, count=30)
+            subject_total += count
+            print(f"  [+] {level.upper():10} - Created {count} placeholder questions")
         
-        if created:
-            for idx, ans_data in enumerate(answers_data):
-                Answer.objects.create(
-                    question=question,
-                    answer_text=ans_data['text'],
-                    is_correct=ans_data['is_correct'],
-                    order=idx
-                )
-            print(f'✓ Question created: {question.question_text[:50]}...')
+        total_questions += subject_total
+        print(f"  Total for {subject.code}: {subject_total} questions")
+    
+    print()
+    return total_questions
 
 
 def main():
-    """Main function to seed the database"""
-    print('\n🌱 Starting database seeding...\n')
+    """Main seeding function"""
+    print("\n" + "=" * 80)
+    print("DATABASE SEEDING STARTED")
+    print("=" * 80 + "\n")
     
-    print('Step 1: Creating superuser...')
-    create_superuser()
+    # Clear existing data
+    confirm = input("Clear existing data? (yes/no): ").strip().lower()
+    if confirm == 'yes':
+        deleted_questions = Question.objects.all().count()
+        deleted_subjects = Subject.objects.all().count()
+        Question.objects.all().delete()
+        Subject.objects.all().delete()
+        print(f"[+] Cleared {deleted_questions} questions and {deleted_subjects} subjects\n")
     
-    print('\nStep 2: Creating categories...')
-    categories = create_categories()
+    # Create subjects
+    subjects = create_subjects()
     
-    print('\nStep 3: Creating quizzes...')
-    quizzes = create_quizzes(categories)
+    # Create placeholder questions (360 total)
+    total_questions = create_all_questions(subjects)
     
-    print('\nStep 4: Creating questions and answers...')
-    create_questions(quizzes)
-    
-    print('\n✅ Database seeding completed successfully!')
-    print('\nYou can now:')
-    print('1. Run the server: python manage.py runserver')
-    print('2. Login to admin: http://127.0.0.1:8000/admin/')
-    print('   Username: admin')
-    print('   Password: admin123')
-    print('3. Visit the site: http://127.0.0.1:8000/\n')
+    # Summary
+    print("=" * 80)
+    print("DATABASE SEEDING COMPLETED")
+    print("=" * 80)
+    print(f"Total Subjects: {subjects.count()}")
+    print(f"Total Questions: {total_questions}")
+    print(f"\nStructure:")
+    print(f"  - 4 Subjects")
+    print(f"  - 3 Levels per subject (easy, medium, hard)")
+    print(f"  - 30 Questions per level")
+    print(f"  - Total: {subjects.count()} × 3 × 30 = {total_questions} questions")
+    print(f"\nNext Steps:")
+    print(f"1. Edit questions in database directly using SQL or Python script")
+    print(f"2. Or replace placeholder text with actual questions")
+    print(f"3. Run server: python manage.py runserver")
+    print(f"4. Visit: http://127.0.0.1:8000/")
+    print("=" * 80 + "\n")
 
 
 if __name__ == '__main__':
     main()
-

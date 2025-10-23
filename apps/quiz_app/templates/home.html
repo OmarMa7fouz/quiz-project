@@ -9,11 +9,12 @@
     <div class="row align-items-center min-vh-75 py-5">
         <div class="col-lg-6 animate__animated animate__fadeInRight">
             <h1 class="display-4 fw-bold text-primary mb-4">
-                Welcome to Smart Quiz System
+                Smart Quiz System
             </h1>
             <p class="lead mb-4">
-                Test your knowledge and develop your skills with the most advanced quiz system. 
-                Easy-to-use interface, detailed reports, and instant results.
+                Test your knowledge with our interactive quiz platform. 
+                Choose from multiple subjects and difficulty levels. 
+                Get instant feedback and improve your skills.
             </p>
             <div class="d-grid gap-2 d-md-flex">
                 <a href="{% url 'quiz:chatbot_home' %}" class="btn btn-success btn-lg px-5">
@@ -83,20 +84,20 @@
             <h2 class="display-6 fw-bold">System Statistics</h2>
         </div>
         <div class="col-md-3 col-6 text-center mb-3">
-            <div class="stat-number text-primary fw-bold display-4">360+</div>
-            <p class="text-muted">Questions</p>
-        </div>
-        <div class="col-md-3 col-6 text-center mb-3">
-            <div class="stat-number text-success fw-bold display-4">12</div>
-            <p class="text-muted">Quizzes</p>
-        </div>
-        <div class="col-md-3 col-6 text-center mb-3">
-            <div class="stat-number text-info fw-bold display-4">4</div>
+            <div class="stat-number text-primary fw-bold display-4">{{ total_subjects }}</div>
             <p class="text-muted">Subjects</p>
         </div>
         <div class="col-md-3 col-6 text-center mb-3">
-            <div class="stat-number text-warning fw-bold display-4">100%</div>
-            <p class="text-muted">Free</p>
+            <div class="stat-number text-success fw-bold display-4">360+</div>
+            <p class="text-muted">Questions</p>
+        </div>
+        <div class="col-md-3 col-6 text-center mb-3">
+            <div class="stat-number text-info fw-bold display-4">3</div>
+            <p class="text-muted">Levels</p>
+        </div>
+        <div class="col-md-3 col-6 text-center mb-3">
+            <div class="stat-number text-warning fw-bold display-4">10</div>
+            <p class="text-muted">Questions/Quiz</p>
         </div>
     </div>
 </div>

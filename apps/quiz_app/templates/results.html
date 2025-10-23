@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}نتائج الاختبار{% endblock %}
+{% block title %}Quiz Results{% endblock %}
 
 {% block extra_css %}
 <!-- Chart.js -->
@@ -18,14 +18,14 @@
                 <div class="result-icon text-success mb-4">
                     <i class="bi bi-check-circle-fill display-1"></i>
                 </div>
-                <h1 class="display-4 fw-bold text-success">مبروك! لقد نجحت</h1>
-                <p class="lead text-muted">أداء ممتاز في الاختبار</p>
+                <h1 class="display-4 fw-bold text-success">Congratulations! You Passed</h1>
+                <p class="lead text-muted">Excellent performance on the quiz</p>
                 {% else %}
                 <div class="result-icon text-warning mb-4">
                     <i class="bi bi-exclamation-circle-fill display-1"></i>
                 </div>
-                <h1 class="display-4 fw-bold text-warning">حاول مرة أخرى</h1>
-                <p class="lead text-muted">لا تستسلم، يمكنك تحسين نتيجتك</p>
+                <h1 class="display-4 fw-bold text-warning">Try Again</h1>
+                <p class="lead text-muted">Don't give up, you can improve your score</p>
                 {% endif %}
             </div>
 
@@ -44,27 +44,27 @@
                                     <text x="60" y="70" text-anchor="middle" class="score-text">{{ result.percentage }}%</text>
                                 </svg>
                             </div>
-                            <h5>النتيجة الإجمالية</h5>
+                            <h5>Total Score</h5>
                         </div>
                         <div class="col-md-3 mb-4 mb-md-0">
                             <div class="stat-box">
                                 <i class="bi bi-check-circle-fill text-success display-4 mb-2"></i>
                                 <h3 class="fw-bold">{{ result.correct_answers }}</h3>
-                                <p class="text-muted mb-0">إجابات صحيحة</p>
+                                <p class="text-muted mb-0">Correct Answers</p>
                             </div>
                         </div>
                         <div class="col-md-3 mb-4 mb-md-0">
                             <div class="stat-box">
                                 <i class="bi bi-x-circle-fill text-danger display-4 mb-2"></i>
                                 <h3 class="fw-bold">{{ result.wrong_answers }}</h3>
-                                <p class="text-muted mb-0">إجابات خاطئة</p>
+                                <p class="text-muted mb-0">Wrong Answers</p>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="stat-box">
                                 <i class="bi bi-clock-fill text-info display-4 mb-2"></i>
                                 <h3 class="fw-bold">{{ result.time_taken }}</h3>
-                                <p class="text-muted mb-0">الوقت المستغرق</p>
+                                <p class="text-muted mb-0">Time Taken</p>
                             </div>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
                 <div class="col-md-6 mb-4">
                     <div class="card border-0 shadow-sm h-100 animate__animated animate__fadeInLeft">
                         <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> توزيع الإجابات</h5>
+                            <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> Answers Distribution</h5>
                         </div>
                         <div class="card-body">
                             <canvas id="answersChart"></canvas>
@@ -86,7 +86,7 @@
                 <div class="col-md-6 mb-4">
                     <div class="card border-0 shadow-sm h-100 animate__animated animate__fadeInRight">
                         <div class="card-header bg-success text-white">
-                            <h5 class="mb-0"><i class="bi bi-bar-chart-fill"></i> الأداء حسب الفئة</h5>
+                            <h5 class="mb-0"><i class="bi bi-bar-chart-fill"></i> Performance by Category</h5>
                         </div>
                         <div class="card-body">
                             <canvas id="categoryChart"></canvas>
@@ -98,22 +98,22 @@
             <!-- Question Review -->
             <div class="card border-0 shadow-sm mb-4 animate__animated animate__fadeInUp">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-list-check"></i> مراجعة الأسئلة</h5>
+                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Question Review</h5>
                 </div>
                 <div class="card-body">
                     {% for question in result.questions %}
                     <div class="question-review mb-4 p-3 border rounded">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="mb-0">سؤال {{ forloop.counter }}: {{ question.text }}</h6>
+                            <h6 class="mb-0">Question {{ forloop.counter }}: {{ question.text }}</h6>
                             {% if question.is_correct %}
-                            <span class="badge bg-success">صحيح</span>
+                            <span class="badge bg-success">Correct</span>
                             {% else %}
-                            <span class="badge bg-danger">خطأ</span>
+                            <span class="badge bg-danger">Wrong</span>
                             {% endif %}
                         </div>
-                        <p class="text-muted mb-2">إجابتك: <strong>{{ question.user_answer }}</strong></p>
+                        <p class="text-muted mb-2">Your Answer: <strong>{{ question.user_answer }}</strong></p>
                         {% if not question.is_correct %}
-                        <p class="text-success mb-0">الإجابة الصحيحة: <strong>{{ question.correct_answer }}</strong></p>
+                        <p class="text-success mb-0">Correct Answer: <strong>{{ question.correct_answer }}</strong></p>
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -123,10 +123,10 @@
             <!-- Action Buttons -->
             <div class="text-center">
                 <a href="{% url 'quiz:quiz_list' %}" class="btn btn-primary btn-lg px-5 me-2">
-                    <i class="bi bi-arrow-right"></i> العودة للاختبارات
+                    <i class="bi bi-arrow-right"></i> Back to Quizzes
                 </a>
                 <a href="{% url 'quiz:take_quiz' result.quiz_id %}" class="btn btn-outline-primary btn-lg px-5">
-                    <i class="bi bi-arrow-clockwise"></i> إعادة المحاولة
+                    <i class="bi bi-arrow-clockwise"></i> Try Again
                 </a>
             </div>
         </div>
@@ -163,7 +163,7 @@
     new Chart(answersCtx, {
         type: 'doughnut',
         data: {
-            labels: ['صحيح', 'خطأ'],
+            labels: ['Correct', 'Wrong'],
             datasets: [{
                 data: [{{ result.correct_answers }}, {{ result.wrong_answers }}],
                 backgroundColor: ['#198754', '#dc3545'],
@@ -188,7 +188,7 @@
         data: {
             labels: {{ result.categories|safe }},
             datasets: [{
-                label: 'الأداء %',
+                label: 'Performance %',
                 data: {{ result.category_scores|safe }},
                 backgroundColor: '#0d6efd',
                 borderRadius: 5
@@ -213,4 +213,3 @@
 </script>
 {% endblock %}
 {% endblock %}
-

@@ -1,185 +1,189 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from django.utils import timezone
-from .models import Quiz, Question, Answer, QuizResult, UserAnswer, Category
+import json
+from .models import Subject, Question, get_random_questions, get_all_subjects, get_subject_levels
 
 
 def home(request):
-    """Home page view"""
+    """Home page - Select subject"""
+    subjects = get_all_subjects()
+    
     context = {
-        'total_quizzes': Quiz.objects.filter(is_active=True).count(),
-        'categories': Category.objects.all()[:4],
-        'featured_quizzes': Quiz.objects.filter(is_active=True)[:3],
+        'subjects': subjects,
+        'total_subjects': subjects.count(),
     }
     return render(request, 'home.html', context)
 
 
-def quiz_list(request):
-    """List only the 4 main subjects with their difficulty levels"""
-    # Define the 4 main subjects with their actual database titles
-    main_subjects = {
-        'CSW351-AI': 'CSW351',
-        'INT353-MULTIMEDIA': 'INT353', 
-        'INT341-WEB TECHNOLOGY': 'INT341-WEB TECHNOLOGY',
-        'CSW325-PARALLEL PROCESSING': 'CSW325-PARALLEL PROCESSING'
+def select_difficulty(request, subject_code):
+    """Select difficulty level for the chosen subject"""
+    subject = get_object_or_404(Subject, code=subject_code)
+    available_levels = get_subject_levels(subject_code)
+    
+    # Count questions per level
+    levels_data = []
+    for level in ['easy', 'medium', 'hard']:
+        count = subject.questions_by_level(level).count()
+        if count > 0:
+            levels_data.append({
+                'level': level,
+                'display': level.title(),
+                'count': count
+            })
+    
+    context = {
+        'subject': subject,
+        'levels': levels_data,
     }
+    return render(request, 'select_difficulty.html', context)
+
+
+def take_quiz(request, subject_code, level):
+    """
+    Display random quiz questions (10 questions)
+    No login required, no saving results
+    """
+    subject = get_object_or_404(Subject, code=subject_code)
     
-    # Get all quiz titles that match our subjects
-    quiz_titles = []
-    for display_name, db_name in main_subjects.items():
-        quiz_titles.extend([f"{db_name} - EASY", f"{db_name} - MEDIUM", f"{db_name} - HARD"])
+    # Get 10 random questions
+    questions = get_random_questions(subject_code, level, num_questions=10)
     
-    # Get quizzes for these subjects only
-    quizzes = Quiz.objects.filter(
-        is_active=True,
-        title__in=quiz_titles
-    ).select_related('category').order_by('title')
-    
-    # Organize by subject
-    subjects_data = {}
-    for display_name in main_subjects.keys():
-        subjects_data[display_name] = {
-            'easy': None,
-            'medium': None,
-            'hard': None
+    if not questions:
+        context = {
+            'error': True,
+            'message': f'No questions available for {subject.name} - {level.title()} level.'
         }
-    
-    # Populate the data
-    for quiz in quizzes:
-        for display_name, db_name in main_subjects.items():
-            if quiz.title.startswith(db_name):
-                difficulty = quiz.title.split(' - ')[-1].lower()
-                subjects_data[display_name][difficulty] = quiz
-                break
-    
-    # Filter by subject if requested
-    selected_subject = request.GET.get('subject')
-    if selected_subject and selected_subject in main_subjects.keys():
-        filtered_data = {selected_subject: subjects_data[selected_subject]}
-        subjects_data = filtered_data
-    
-    # Filter by difficulty if requested
-    selected_difficulty = request.GET.get('difficulty')
-    if selected_difficulty:
-        filtered_data = {}
-        for subject, levels in subjects_data.items():
-            filtered_levels = {}
-            if selected_difficulty in levels and levels[selected_difficulty]:
-                filtered_levels[selected_difficulty] = levels[selected_difficulty]
-            if filtered_levels:
-                filtered_data[subject] = filtered_levels
-        subjects_data = filtered_data
-    
-    # Search
-    search_query = request.GET.get('search')
-    if search_query:
-        filtered_data = {}
-        for subject, levels in subjects_data.items():
-            if search_query.lower() in subject.lower():
-                filtered_data[subject] = levels
-        subjects_data = filtered_data
+        return render(request, 'quiz.html', context)
     
     context = {
-        'subjects_data': subjects_data,
-        'main_subjects': list(main_subjects.keys()),
-    }
-    return render(request, 'quiz_list.html', context)
-
-
-@login_required
-def take_quiz(request, quiz_id):
-    """Take a quiz"""
-    quiz = get_object_or_404(Quiz, id=quiz_id, is_active=True)
-    questions = quiz.questions.prefetch_related('answers').all()
-    
-    # Create a new quiz result
-    quiz_result = QuizResult.objects.create(
-        user=request.user,
-        quiz=quiz,
-        total_points=sum(q.points for q in questions)
-    )
-    
-    context = {
-        'quiz': quiz,
+        'subject': subject,
+        'level': level.title(),
         'questions': questions,
-        'quiz_result_id': quiz_result.id,
+        'total_questions': len(questions),
     }
     return render(request, 'quiz.html', context)
 
 
-@login_required
-def submit_quiz(request, quiz_id):
-    """Submit quiz answers"""
+def check_answers(request):
+    """
+    Check answers via AJAX
+    Returns immediate feedback without saving to database
+    """
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=400)
     
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    quiz_result_id = request.POST.get('quiz_result_id')
-    quiz_result = get_object_or_404(QuizResult, id=quiz_result_id, user=request.user)
+    # Get submitted answers
+    import json
+    data = json.loads(request.body)
+    answers = data.get('answers', {})
     
-    # Process answers
-    total_score = 0
-    questions = quiz.questions.all()
+    # Check each answer
+    results = []
+    correct_count = 0
     
-    for question in questions:
-        answer_id = request.POST.get(f'question_{question.id}')
-        if answer_id:
-            selected_answer = get_object_or_404(Answer, id=answer_id)
-            is_correct = selected_answer.is_correct
-            points = question.points if is_correct else 0
+    for question_id, selected_option in answers.items():
+        try:
+            question = Question.objects.get(id=question_id)
+            is_correct = question.check_answer(selected_option)
             
-            UserAnswer.objects.create(
-                quiz_result=quiz_result,
-                question=question,
-                selected_answer=selected_answer,
-                is_correct=is_correct,
-                points_earned=points
-            )
+            if is_correct:
+                correct_count += 1
             
-            total_score += points
+            results.append({
+                'question_id': question_id,
+                'selected': selected_option,
+                'correct_answer': question.correct_answer,
+                'is_correct': is_correct,
+                'explanation': question.explanation,
+            })
+        except Question.DoesNotExist:
+            continue
     
-    # Update quiz result
-    quiz_result.score = total_score
-    quiz_result.percentage = (total_score / quiz_result.total_points) * 100 if quiz_result.total_points > 0 else 0
-    quiz_result.passed = quiz_result.percentage >= quiz.pass_percentage
-    quiz_result.completed = True
-    quiz_result.completed_at = timezone.now()
-    quiz_result.time_taken = int(request.POST.get('time_taken', 0))
-    quiz_result.save()
+    total_questions = len(answers)
+    percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
     
-    return redirect('quiz:view_results', result_id=quiz_result.id)
+    response_data = {
+        'success': True,
+        'correct_count': correct_count,
+        'total_questions': total_questions,
+        'percentage': round(percentage, 2),
+        'results': results,
+    }
+    
+    return JsonResponse(response_data)
 
 
-@login_required
-def view_results(request, result_id):
-    """View quiz results"""
-    result = get_object_or_404(QuizResult, id=result_id, user=request.user)
-    user_answers = result.user_answers.select_related('question', 'selected_answer').all()
+def check_answers(request):
+    """Check quiz answers and return results"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
     
-    # Prepare data for charts
-    categories_performance = {}
-    for answer in user_answers:
-        category = answer.question.quiz.category.name
-        if category not in categories_performance:
-            categories_performance[category] = {'correct': 0, 'total': 0}
-        categories_performance[category]['total'] += 1
-        if answer.is_correct:
-            categories_performance[category]['correct'] += 1
+    try:
+        data = json.loads(request.body)
+        answers = data.get('answers', {})
+        
+        results = []
+        correct_count = 0
+        
+        for question_id, selected_answer in answers.items():
+            try:
+                question = Question.objects.get(id=int(question_id))
+                is_correct = selected_answer == question.correct_answer
+                
+                if is_correct:
+                    correct_count += 1
+                
+                results.append({
+                    'question_id': question_id,
+                    'selected': selected_answer,
+                    'correct_answer': question.correct_answer,
+                    'is_correct': is_correct
+                })
+                
+            except Question.DoesNotExist:
+                return JsonResponse({'error': f'Question {question_id} not found'}, status=404)
+        
+        total_questions = len(results)
+        percentage = (correct_count / total_questions) * 100 if total_questions > 0 else 0
+        
+        response_data = {
+            'total_questions': total_questions,
+            'correct_count': correct_count,
+            'incorrect_count': total_questions - correct_count,
+            'percentage': round(percentage, 2),
+            'results': results
+        }
+        
+        return JsonResponse(response_data)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def quiz_list(request):
+    """List all subjects with their available levels"""
+    subjects = get_all_subjects()
     
-    # Calculate category scores
-    category_labels = []
-    category_scores = []
-    for category, data in categories_performance.items():
-        category_labels.append(category)
-        score = (data['correct'] / data['total']) * 100 if data['total'] > 0 else 0
-        category_scores.append(round(score, 2))
+    subjects_data = []
+    for subject in subjects:
+        levels_info = []
+        for level in ['easy', 'medium', 'hard']:
+            count = subject.questions_by_level(level).count()
+            if count > 0:
+                levels_info.append({
+                    'level': level,
+                    'count': count
+                })
+        
+        subjects_data.append({
+            'subject': subject,
+            'levels': levels_info,
+            'total_questions': subject.total_questions()
+        })
     
     context = {
-        'result': result,
-        'user_answers': user_answers,
-        'categories': category_labels,
-        'category_scores': category_scores,
+        'subjects_data': subjects_data,
     }
-    return render(request, 'results.html', context)
+    return render(request, 'quiz_list.html', context)

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Quiz App{% endblock %}</title>
+    <title>{% block title %}Smart Quiz System{% endblock %}</title>
     
-    <!-- Bootstrap 5 RTL -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -31,7 +31,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'quiz:home' %}">
                             <i class="bi bi-house-fill"></i> Home
@@ -66,7 +66,7 @@
                     </li>
                     {% endif %}
                     <li class="nav-item">
-                        <button class="btn btn-sm btn-outline-light ms-2" id="darkModeToggle">
+                        <button class="btn btn-sm btn-outline-light me-2" id="darkModeToggle">
                             <i class="bi bi-moon-fill"></i>
                         </button>
                     </li>

@@ -36,23 +36,24 @@
                 </div>
 
                 <div class="chat-input">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="row g-3">
-                            {% for code, info in subjects.items %}
-                            <div class="col-md-6">
-                                <button type="submit" name="subject" value="{{ code }}" 
-                                        class="subject-card w-100">
-                                    <div class="subject-icon">
-                                        <i class="{{ info.icon }}"></i>
-                                    </div>
-                                    <h6 class="mb-1">{{ code }}</h6>
-                                    <small class="text-muted">{{ info.name }}</small>
-                                </button>
-                            </div>
-                            {% endfor %}
+                    <div class="row g-3">
+                        {% for subject in subjects %}
+                        <div class="col-md-6">
+                            <a href="{% url 'quiz:chatbot_select_difficulty' %}?subject={{ subject.code }}" 
+                               class="subject-card w-100 text-decoration-none">
+                                <div class="subject-icon">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                <h6 class="mb-1">{{ subject.code }}</h6>
+                                <small class="text-muted">{{ subject.name }}</small>
+                            </a>
                         </div>
-                    </form>
+                        {% empty %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">No subjects available</p>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -107,7 +108,7 @@
     }
 
     .message-content {
-        margin-left: 1rem;
+        margin-right: 1rem;
     }
 
     .message-bubble {
@@ -130,6 +131,8 @@
         background: white;
         transition: all 0.3s ease;
         text-align: center;
+        display: block;
+        color: inherit;
     }
 
     .subject-card:hover {
@@ -137,6 +140,8 @@
         background: #f8f9ff;
         transform: translateY(-5px);
         box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        color: inherit;
+        text-decoration: none;
     }
 
     .subject-icon {

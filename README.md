@@ -1,207 +1,184 @@
-# 🎓 نظام الاختبارات الذكي | My Quiz Project
+# Smart Quiz System
 
-مشروع Django متكامل لنظام اختبارات ذكي مع واجهة مستخدم حديثة وجميلة.
+A comprehensive quiz application built with Django and Django REST Framework, featuring a chatbot interface and RESTful API.
 
-A comprehensive Django-based quiz application with a modern, beautiful user interface.
+## 🚀 Features
 
-## ✨ المميزات | Features
+- **Interactive Quiz System** - Multiple subjects and difficulty levels
+- **Chatbot Interface** - Guided quiz selection
+- **RESTful API** - Complete API for integration
+- **Random Questions** - Different questions each time
+- **Instant Results** - Immediate feedback and scoring
+- **Professional UI** - Modern, responsive design
+- **LTR Layout** - Left-to-right layout (English)
 
-- 🎨 **واجهة حديثة وجميلة** - Built with Bootstrap 5 RTL
-- 🌙 **وضع ليلي** - Dark mode support
-- 📊 **رسوم بيانية تفاعلية** - Interactive charts with Chart.js
-- 💻 **تمييز الأكواد** - Syntax highlighting with Prism.js
-- 📱 **تصميم متجاوب** - Fully responsive design
-- 🔐 **نظام مستخدمين متكامل** - Complete authentication system
-- 📈 **تتبع التقدم** - Progress tracking and analytics
-- ⚡ **نتائج فورية** - Instant results with detailed analysis
-
-## 🏗️ هيكل المشروع | Project Structure
+## 📁 Project Structure
 
 ```
 quiz-project/
-├── apps/                   # Custom Django applications
-│   ├── quiz_app/          # Quiz functionality app
-│   │   ├── templates/     # HTML templates
-│   │   ├── static/        # CSS, JS, images
-│   │   ├── models.py      # Database models
-│   │   ├── views.py       # Views
-│   │   ├── urls.py        # URL patterns
-│   │   └── admin.py       # Admin configuration
-│   └── users_app/         # User management app
-├── assets/                # Static assets (CSS, JS, images)
-├── logs/                  # Application logs
-├── media/                 # User-uploaded files
-├── my_quiz_project/       # Main project configuration
-├── scripts/               # Utility scripts
-│   └── seed_database.py  # Database seeding script
-├── shared/                # Shared utilities and helpers
-├── staticfiles/           # Collected static files (for production)
-├── templates/             # Project-level templates
-├── manage.py             # Django management script
-├── README.md             # This file
-└── PROJECT_SETUP.md      # Detailed setup guide (Arabic)
+├── apps/
+│   └── quiz_app/
+│       ├── models.py          # Database models
+│       ├── views.py           # Web views
+│       ├── api_views.py       # API endpoints
+│       ├── serializers.py     # API serializers
+│       ├── urls.py            # Web URLs
+│       ├── api_urls.py        # API URLs
+│       ├── admin.py           # Admin interface
+│       ├── chatbot_views.py   # Chatbot views
+│       ├── templates/         # HTML templates
+│       │   ├── base.html
+│       │   ├── home.html
+│       │   ├── quiz.html
+│       │   ├── quiz_list.html
+│       │   ├── results.html
+│       │   └── chatbot/
+│       │       ├── home.html
+│       │       ├── select_subject.html
+│       │       ├── select_difficulty.html
+│       │       └── error.html
+│       └── static/            # Static files
+│           ├── css/
+│           ├── js/
+│           └── images/
+├── my_quiz_project/          # Django project settings
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── scripts/                   # Utility scripts
+│   ├── seed_database.py
+│   ├── manage_questions.py
+│   ├── import_questions.py
+│   ├── view_database.py
+│   ├── quiz_database.py
+│   ├── sql_queries.sql
+│   └── test_api.py
+├── docs/                      # Documentation
+│   ├── API_DOCUMENTATION.md
+│   ├── API_README.md
+│   └── HOW_TO_ADD_QUESTIONS.md
+├── static/                    # Static files
+├── media/                     # Media files
+├── manage.py
+├── requirements.txt
+├── db.sqlite3
+└── README.md
 ```
 
-## 🚀 البدء السريع | Quick Start
+## 🛠️ Installation
 
-### الخادم يعمل الآن! | Server is Running!
-
-**🌐 الموقع الرئيسي | Main Site:**
-```
-http://127.0.0.1:8000/
-```
-
-**🔐 لوحة الإدارة | Admin Panel:**
-```
-http://127.0.0.1:8000/admin/
-```
-
-**بيانات الدخول | Login Credentials:**
-- **Username:** admin
-- **Password:** admin123
-
-### إعداد جديد | Fresh Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd quiz-project
-   ```
-
-2. **Create virtual environment** (recommended)
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate  # Windows
-   source venv/bin/activate  # Linux/Mac
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Run migrations**
-   ```bash
-   python manage.py migrate
-   ```
-
-5. **Seed database with sample data**
-   ```bash
-   python scripts/seed_database.py
-   ```
-
-6. **Run the development server**
-   ```bash
-   python manage.py runserver
-   ```
-
-7. **Access the application**
-   - Main site: http://127.0.0.1:8000/
-   - Admin panel: http://127.0.0.1:8000/admin/
-   - Login: admin / admin123
-
-## 📚 المكونات الرئيسية | Main Components
-
-### quiz_app - تطبيق الاختبارات
-- ✅ إنشاء وإدارة الاختبارات
-- ✅ أسئلة متعددة الأنواع (اختيار واحد، متعدد، صح/خطأ)
-- ✅ دعم الأكواد البرمجية
-- ✅ نظام نقاط مرن
-- ✅ تتبع النتائج والتحليلات
-- ✅ واجهة تفاعلية مع مؤقت
-
-### users_app - تطبيق المستخدمين
-- ✅ نظام مصادقة المستخدمين
-- ✅ إدارة الملفات الشخصية
-- ✅ تتبع تقدم المستخدم
-
-### البيانات النموذجية | Sample Data
-- 4 فئات (البرمجة، قواعد البيانات، تطوير الويب، الذكاء الاصطناعي)
-- 3 اختبارات جاهزة
-- 9 أسئلة مع إجابات
-- مستخدم إداري جاهز
-
-## Development
-
-### Running Tests
+### 1. Clone the repository
 ```bash
-python manage.py test
+git clone <repository-url>
+cd quiz-project
 ```
 
-### Collecting Static Files
+### 2. Install dependencies
 ```bash
-python manage.py collectstatic
+pip install -r requirements.txt
 ```
 
-## Configuration
-
-The project is configured to use:
-- SQLite database (default)
-- Static files in `assets/` directory
-- Media files in `media/` directory
-- Templates in `templates/` directory
-
-Edit `my_quiz_project/settings.py` to customize these settings.
-
-## 🎨 التقنيات المستخدمة | Technologies Used
-
-### Backend
-- Django 5.2.5
-- Python 3.12
-- SQLite (development) / PostgreSQL (production ready)
-
-### Frontend
-- Bootstrap 5 RTL
-- Chart.js (رسوم بيانية)
-- Prism.js (تمييز الأكواد)
-- Animate.css (المؤثرات)
-- Bootstrap Icons
-- Vanilla JavaScript (ES6+)
-
-## 📖 التوثيق | Documentation
-
-للحصول على دليل إعداد مفصل بالعربية، راجع:
-For detailed setup guide in Arabic, see:
-**[PROJECT_SETUP.md](PROJECT_SETUP.md)**
-
-## 🛠️ الأوامر المفيدة | Useful Commands
-
+### 3. Run migrations
 ```bash
-# تشغيل الخادم | Run server
-python manage.py runserver
-
-# إنشاء migrations | Create migrations
 python manage.py makemigrations
-
-# تطبيق migrations | Apply migrations
 python manage.py migrate
-
-# تعبئة قاعدة البيانات | Seed database
-python scripts/seed_database.py
-
-# جمع الملفات الثابتة | Collect static files
-python manage.py collectstatic
-
-# اختبار التطبيق | Run tests
-python manage.py test
 ```
 
-## 🤝 المساهمة | Contributing
+### 4. Seed the database
+```bash
+python scripts/seed_database.py
+```
 
-1. Create a new branch for your feature
-2. Make your changes
-3. Test thoroughly
-4. Submit a pull request
+### 5. Start the server
+```bash
+python manage.py runserver
+```
 
-## 📄 الترخيص | License
+## 🌐 Usage
 
-This project is open source and available under the [MIT License](LICENSE).
+### Web Interface
+- **Home**: http://127.0.0.1:8000/
+- **Quiz List**: http://127.0.0.1:8000/quizzes/
+- **Chatbot**: http://127.0.0.1:8000/chatbot/
 
-## 🙏 شكر وتقدير | Acknowledgments
+### API Endpoints
+- **API Root**: http://127.0.0.1:8000/api/
+- **Subjects**: http://127.0.0.1:8000/api/subjects/
+- **Questions**: http://127.0.0.1:8000/api/questions/
+- **Health Check**: http://127.0.0.1:8000/api/health/
 
-Built with ❤️ using Django and Bootstrap
+## 📚 Documentation
 
----
+- **API Documentation**: `docs/API_DOCUMENTATION.md`
+- **API README**: `docs/API_README.md`
+- **Question Management**: `docs/HOW_TO_ADD_QUESTIONS.md`
 
-**استمتع بالتطوير! | Happy Coding!** 🚀
+## 🧪 Testing
 
+### Test the API
+```bash
+python scripts/test_api.py
+```
+
+### Test the Web Interface
+Visit the URLs above in your browser.
+
+## 📊 Database
+
+The system uses SQLite with the following models:
+- **Subject**: Quiz subjects (CSW351-AI, INT353-MULTIMEDIA, etc.)
+- **Question**: Quiz questions with multiple choice answers
+
+## 🔧 Configuration
+
+### Settings
+- **Database**: SQLite (development)
+- **Language**: English only
+- **Layout**: LTR (Left-to-Right)
+- **API**: RESTful with JSON responses
+
+### Environment Variables
+- `DEBUG`: Set to `True` for development
+- `SECRET_KEY`: Django secret key
+
+## 🚀 Deployment
+
+### Production Settings
+1. Set `DEBUG = False`
+2. Configure proper database
+3. Set up static file serving
+4. Configure CORS settings
+5. Set up authentication if needed
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For issues or questions:
+1. Check the documentation in `docs/`
+2. Run the test script: `python scripts/test_api.py`
+3. Check the API health: http://127.0.0.1:8000/api/health/
+
+## 🎯 Features Overview
+
+- ✅ **4 Subjects** - AI, Multimedia, Web Technology, Parallel Processing
+- ✅ **3 Difficulty Levels** - Easy, Medium, Hard
+- ✅ **360 Questions** - 30 per level per subject
+- ✅ **Random Selection** - 10 questions per quiz
+- ✅ **Instant Results** - Immediate feedback
+- ✅ **API Integration** - RESTful API
+- ✅ **Chatbot Interface** - Guided selection
+- ✅ **Professional Design** - Modern UI
+- ✅ **LTR Layout** - English interface
+- ✅ **No Authentication** - Simple to use

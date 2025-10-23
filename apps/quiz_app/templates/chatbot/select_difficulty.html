@@ -24,7 +24,7 @@
                     <div class="message user-message">
                         <div class="message-content ms-auto">
                             <div class="message-bubble">
-                                <p class="mb-0">{{ subject }} - {{ subject_name }}</p>
+                                <p class="mb-0">{{ subject.code }} - {{ subject.name }}</p>
                             </div>
                         </div>
                     </div>
@@ -44,40 +44,29 @@
                 </div>
 
                 <div class="chat-input">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="d-grid gap-3">
-                            <button type="submit" name="difficulty" value="easy" class="difficulty-btn easy">
-                                <div class="d-flex align-items-center">
-                                    <div class="difficulty-icon">⭐</div>
-                                    <div class="text-start flex-grow-1">
-                                        <div class="difficulty-title">EASY</div>
-                                        <small>15 minutes • Pass: 70%</small>
-                                    </div>
+                    <div class="d-grid gap-3">
+                        {% for level in levels %}
+                        <a href="{% url 'quiz:take_quiz' subject_code=subject.code level=level.level %}" 
+                           class="difficulty-btn {{ level.level }} text-decoration-none">
+                            <div class="d-flex align-items-center">
+                                <div class="difficulty-icon">
+                                    {% if level.level == 'easy' %}⭐
+                                    {% elif level.level == 'medium' %}⭐⭐
+                                    {% else %}⭐⭐⭐
+                                    {% endif %}
                                 </div>
-                            </button>
-
-                            <button type="submit" name="difficulty" value="medium" class="difficulty-btn medium">
-                                <div class="d-flex align-items-center">
-                                    <div class="difficulty-icon">⭐⭐</div>
-                                    <div class="text-start flex-grow-1">
-                                        <div class="difficulty-title">MEDIUM</div>
-                                        <small>20 minutes • Pass: 65%</small>
-                                    </div>
+                                <div class="text-start flex-grow-1">
+                                    <div class="difficulty-title">{{ level.display }}</div>
+                                    <small>{{ level.count }} questions available</small>
                                 </div>
-                            </button>
-
-                            <button type="submit" name="difficulty" value="hard" class="difficulty-btn hard">
-                                <div class="d-flex align-items-center">
-                                    <div class="difficulty-icon">⭐⭐⭐</div>
-                                    <div class="text-start flex-grow-1">
-                                        <div class="difficulty-title">HARD</div>
-                                        <small>25 minutes • Pass: 60%</small>
-                                    </div>
-                                </div>
-                            </button>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="text-center">
+                            <p class="text-muted">No questions available for this subject</p>
                         </div>
-                    </form>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,7 +131,7 @@
     }
 
     .message-content {
-        margin-left: 1rem;
+        margin-right: 1rem;
     }
 
     .message-bubble {
@@ -165,11 +154,15 @@
         background: white;
         transition: all 0.3s ease;
         text-align: left;
+        display: block;
+        color: inherit;
     }
 
     .difficulty-btn:hover {
         transform: translateX(5px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        color: inherit;
+        text-decoration: none;
     }
 
     .difficulty-btn.easy:hover {
