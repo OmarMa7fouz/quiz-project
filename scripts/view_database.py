@@ -43,7 +43,6 @@ def view_quizzes():
         print(f"   Active: {quiz.is_active} | Created: {quiz.created_at.strftime('%Y-%m-%d')}")
         print()
 
-
 def view_questions():
     print_separator("الأسئلة | Questions")
     questions = Question.objects.all()
@@ -142,4 +141,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
