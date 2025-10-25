@@ -64,6 +64,7 @@ QUESTIONS_TO_SHOW = 10
 # 🌱 DATABASE SEEDING FUNCTIONS
 # ============================================================================
 
+# create_chatbot_user: ensure a 'chatbot' user exists and return the User instance
 def create_chatbot_user():
     """Create chatbot user if doesn't exist"""
     if not User.objects.filter(username='chatbot').exists():
@@ -85,6 +86,8 @@ def seed_database(clear_existing=False):
     Args:
         clear_existing (bool): If True, clear all existing data first
     """
+    # seed_database: populate DB with categories, quizzes and placeholder questions
+    # clear_existing controls whether to wipe existing quiz-related tables first
     print('\n' + '='*80)
     print('🌱 SEEDING DATABASE')
     print('='*80)
@@ -192,17 +195,20 @@ def seed_database(clear_existing=False):
 # 🔍 DATABASE QUERY FUNCTIONS
 # ============================================================================
 
+# get_all_subjects: return list of (name, description) for all Category objects
 def get_all_subjects():
     """Get all available subjects"""
     categories = Category.objects.all()
     return [(cat.name, cat.description) for cat in categories]
 
 
+# get_subject_by_code: lookup Category by its name and return first match or None
 def get_subject_by_code(subject_code):
     """Get category by subject code"""
     return Category.objects.filter(name=subject_code).first()
 
 
+# get_quiz: find a Quiz by subject_code and difficulty (slug-based lookup)
 def get_quiz(subject_code, difficulty):
     """
     Get specific quiz by subject code and difficulty
@@ -218,6 +224,7 @@ def get_quiz(subject_code, difficulty):
     return Quiz.objects.filter(slug=slug).first()
 
 
+# get_random_questions: return `count` randomized Question objects for a Quiz
 def get_random_questions(quiz, count=QUESTIONS_TO_SHOW):
     """
     Get random questions from a quiz
@@ -244,6 +251,7 @@ def get_random_questions(quiz, count=QUESTIONS_TO_SHOW):
     return selected_questions
 
 
+# get_question_with_answers: return Question (with answers prefetched) or None
 def get_question_with_answers(question_id):
     """Get a question with its answers"""
     try:
@@ -253,6 +261,7 @@ def get_question_with_answers(question_id):
         return None
 
 
+# check_answer: return True if the specified answer_id for question_id is_correct
 def check_answer(question_id, answer_id):
     """
     Check if an answer is correct
@@ -271,6 +280,7 @@ def check_answer(question_id, answer_id):
         return False
 
 
+# get_correct_answer: fetch the Answer object marked correct for a question, or None
 def get_correct_answer(question_id):
     """Get the correct answer for a question"""
     try:
@@ -281,6 +291,7 @@ def get_correct_answer(question_id):
         return None
 
 
+# save_quiz_result: compute score, create QuizResult and related UserAnswer rows
 def save_quiz_result(user, quiz, questions, user_answers):
     """
     Save quiz result to database
@@ -339,6 +350,7 @@ def save_quiz_result(user, quiz, questions, user_answers):
     return quiz_result
 
 
+# get_user_results: return recent QuizResult rows for a user (limit default 10)
 def get_user_results(user, limit=10):
     """Get user's quiz results"""
     return QuizResult.objects.filter(user=user).order_by('-started_at')[:limit]
@@ -348,6 +360,7 @@ def get_user_results(user, limit=10):
 # 👁️ DATABASE VIEWER FUNCTIONS
 # ============================================================================
 
+# view_database_summary: print counts and summaries for categories, quizzes, questions, answers and results
 def view_database_summary():
     """View complete database summary"""
     print('\n' + '='*80)
@@ -373,6 +386,7 @@ def view_database_summary():
     print('\n' + '='*80)
 
 
+# view_all_quizzes: print a summary for each subject and difficulty level if a quiz exists
 def view_all_quizzes():
     """View all available quizzes"""
     print('\n' + '='*80)
@@ -392,14 +406,8 @@ def view_all_quizzes():
     print('\n' + '='*80)
 
 
+ # view_quiz_details: display detailed metadata and a few sample questions for a quiz
 def view_quiz_details(subject_code, difficulty):
-    """
-    View detailed info about a specific quiz
-    
-    Args:
-        subject_code (str): Subject code
-        difficulty (str): Difficulty level
-    """
     quiz = get_quiz(subject_code, difficulty)
     
     if not quiz:
@@ -428,6 +436,7 @@ def view_quiz_details(subject_code, difficulty):
     print('\n' + '='*80)
 
 
+# view_quiz_statistics: compute and print overall quiz attempt statistics and averages
 def view_quiz_statistics():
     """View quiz statistics"""
     print('\n' + '='*80)
@@ -471,6 +480,7 @@ def show_menu():
     print('7. ❌ Exit')
 
 
+ # main: interactive menu loop to exercise database functions for testing
 def main():
     """Main function for testing database operations"""
     print("""
